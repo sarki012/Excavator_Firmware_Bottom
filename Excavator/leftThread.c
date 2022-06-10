@@ -15,15 +15,10 @@ volatile extern char rxval[40];
 void leftThread( void *pvParameters )
 {
     int leftTrack = 0, i = 0;
-    //When leftTrack = 60, max speed, PHASE1 = 500
-    //When leftTrack is around 0, PHASE1 = 10,000
-    LATAbits.LATA0 = 1;         //Left direction
-    PHASE1 = 1000;
-    PDC1 = PHASE1/2;
+    //When leftTrack = 60, max speed, PHASE1 = 750
+    //When leftTrack is around 0, PHASE1 = 5,000
     while(1)
     {
-
-        /*
         for(i = 0; i < 35; i++)
         {
             if(rxval[i] == 'l')
@@ -36,14 +31,20 @@ void leftThread( void *pvParameters )
         {
             LATAbits.LATA0 = 1;     //Forward
         }
-        else
+        else if(leftTrack < 0)
         {
             LATAbits.LATA0 = 0;     //Reverse
             leftTrack *= -1;        //We only want positive magnitudes
         }
-         * */
-       // PHASE1 = 2000;
-       // PHASE1 = 10000 - (leftTrack*126);
-       // PDC1 = PHASE1/2;
+        if(leftTrack < 15)
+        {
+            PHASE1 = 1000;
+            PDC1 = 0;
+        }
+        else
+        {
+            PHASE1 = 5000 - (leftTrack*40);
+            PDC1 = PHASE1/2;
+        }
     }    
 }
