@@ -36,7 +36,7 @@ int spin = 0, i = 0;
             LATAbits.LATA4 = 0;     //Reverse
             spin *= -1;        //We only want positive magnitudes
         }
-        if(spin < 25)
+        if(spin < 20)
         {
             PHASE3 = 1000;
             PDC3 = 0;
