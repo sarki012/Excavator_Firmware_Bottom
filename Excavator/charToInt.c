@@ -6,10 +6,10 @@
  */
 #include "main.h"
 
-int charToInt(char d2, char d1, char d0)
+int charToInt(char d3, char d2, char d1, char d0)
 {
     int integer = 0, negative = 0;
-    switch(d2) {
+    switch(d3) {
         case '+' :
           break;
         case '-' :
@@ -17,6 +17,41 @@ int charToInt(char d2, char d1, char d0)
           break;
         default : 
           integer = 0;
+          break;
+    }
+    switch(d2) {
+        case '0' :
+          integer += 0;
+          break;
+        case '1' :
+          integer += 100;
+          break;
+        case '2' :
+          integer += 200;
+          break;
+        case '3' :
+          integer += 300;
+          break;
+        case '4' :
+          integer += 400;
+          break;
+        case '5' :
+          integer += 500;
+          break;
+        case '6' :
+          integer += 600;
+          break;
+        case '7' :
+          integer += 700;
+          break;
+        case '8' :
+          integer += 800;
+          break;
+        case '9' :
+          integer += 900;
+          break;
+        default : 
+          integer += 0;
           break;
     }
     switch(d1) {

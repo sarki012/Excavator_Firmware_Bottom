@@ -183,7 +183,12 @@ void init(void)
  //   TRGCON1bits.TRGDIV = 7;     //Trigger output for every 8th trigger event
  //   TRGCON2bits.TRGDIV = 7;     //Trigger output for every 8th trigger event
     PTCONbits.PTEN = 1;         //PWM Module is enabled
-
+    PHASE1 = 1000;
+    PDC1 = 0;
+    PHASE2 = 1000;
+    PDC2 = 0;
+    PHASE3 = 1000;
+    PDC3 = 0;
 
     return;
 }

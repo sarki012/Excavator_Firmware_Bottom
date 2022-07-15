@@ -49,14 +49,14 @@
 #include "FreeRTOSConfig.h"
 #include "main.h"
 
-volatile char rxval[40];
+volatile char rxval[100];
 int x = 0;
 void __attribute__((__interrupt__, auto_psv)) _U1RXInterrupt(void)             
 {
     IFS0bits.U1RXIF = 0;
     rxval[x] = U1RXREG;
     x++;
-    if(x == 40)
+    if(x == 100)
     {  
         x = 0;
     }
@@ -69,7 +69,7 @@ void __attribute__((__interrupt__, auto_psv)) _DefaultInterrupt(void)
 
 void main(void) {
     int i = 0;
-    for(i = 0; i < 40; i++)
+    for(i = 0; i < 100; i++)
     {
         rxval[i] = 0;
     }
