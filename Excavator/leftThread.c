@@ -46,6 +46,7 @@ void leftThread( void *pvParameters )
                 if(rxval[i] == '$')
                 {
                     stopSending = 1;
+                    break;
                 }
             }
             if(leftTrack > 0 && stopSending == 0)
@@ -57,20 +58,19 @@ void leftThread( void *pvParameters )
                 LATAbits.LATA1 = 0;     //Reverse
                 leftTrack *= -1;        //We only want positive magnitudes
             }
-            /*
-            if(leftTrack < 40 && leftTrackZero != 1)
+            
+            if(leftTrack < 50 && leftTrackZero != 1 && stopSending == 0)
             {
                 PHASE2 = 1000;
                 PDC2 = 0;
             }
- */
+ 
 
-            if(leftTrackZero != 1 && abs(leftTrack - leftTrackPrev) > 20 && lFlag != 0) 
+            if(leftTrackZero != 1 && abs(leftTrack - leftTrackPrev) > 20 && stopSending == 0) 
             {
-                PHASE2 = 7000 - (leftTrack*20);
+                PHASE2 = 6000 - (leftTrack*16);
                 PDC2 = PHASE2/2;
                 delay(50000);
-                lFlag = 0;
             }          
             leftTrackPrev = leftTrack;
             samples = 0;
