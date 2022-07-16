@@ -16,7 +16,7 @@ void delay(int numLoops)
     int i = 0, j = 0;
     for(i = 0; i < numLoops; i++)
     {
-        for(j = 0; j < 1000; j++);
+        for(j = 0; j < 100; j++);
     }
     return;
 }
