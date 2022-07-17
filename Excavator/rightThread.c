@@ -8,57 +8,59 @@
 volatile extern char rxval[100];
 void rightThread( void *pvParameters )
 {
-    int rightTrack = 0, i = 0;
-    int rightTrackZero = 0;
+    int pixelsY = 0, i = 0;
+    int zeroVal = 0;
     int samples = 0;
- //   PHASE2 = 2000;
-  //  PDC2 = PHASE2/2;
-    //When leftTrack = 200 or -200, max speed, PHASEx = 1,000
-    //When -50 < leftTrack < 50 is around 0, PHASEx = 0;
-    //When motor first turns on, PHASEx = 10,000
-    //
+    int stopSending = 0;
+    //When leftTrack = 300 or -300, max speed, PHASEx = 1,000
+    //When -75 < leftTrack < 75 is around 0, PHASEx = 0;
+    //When motor first turns on, PHASEx = 6,000
     while(1)
     {
         if(samples == SAMPLE_RATE)
         {
-            rightTrackZero = 0;
+            zeroVal= 0;
             for(i = 0; i < 95; i++)
             {
                 if(rxval[i] == 'r')
                 {
-
-                    rightTrack = charToInt(rxval[i+1], rxval[i+2], rxval[i+3], rxval[i+4]);
-                    if(rightTrack == 0)
+                    pixelsY = charToInt(rxval[i+1], rxval[i+2], rxval[i+3], rxval[i+4]);
+                    if(pixelsY == 0)
                     {
-                        rightTrackZero = 1;
+                        zeroVal = 1;
                     }
+                    stopSending = 0;
+                    break;
+                }
+                if(rxval[i] == '@')
+                {
+                    stopSending = 1;
                     break;
                 }
             }
-            if(rightTrack > 0)
+            if(pixelsY > 0 && stopSending == 0)
             {
                 LATAbits.LATA0 = 1;     //Forward
             }
-            else if(rightTrack < 0)
+            else if(pixelsY < 0 && stopSending == 0)
             {
                 LATAbits.LATA0 = 0;     //Reverse
-                rightTrack *= -1;        //We only want positive magnitudes
+                pixelsY *= -1;        //We only want positive magnitudes
             }
-
-            if(rightTrack < 40 && rightTrackZero != 1)
+            
+            if(pixelsY < 75 && zeroVal != 1 && stopSending == 0)
             {
                 PHASE1 = 1000;
                 PDC1 = 0;
             }
- 
-            else if(rightTrackZero != 1) 
+            else if(zeroVal != 1 && stopSending == 0) 
             {
-                PHASE1 = 11000 - (rightTrack*45);
+                PHASE1 = 6000 - (pixelsY*16);
                 PDC1 = PHASE1/2;
-                delay(5000);
+                delay(500);
             }          
             samples = 0;
         }
         samples++;
-    }   
+    }    
 }
