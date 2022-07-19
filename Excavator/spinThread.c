@@ -47,23 +47,23 @@ void spinThread( void *pvParameters )
             }
             if(pixelsX > 0 && stopSending == 0)
             {
-                LATAbits.LATA4 = 1;     //Forward
+                LATAbits.LATA4 = 0;     //Forward
             }
             else if(pixelsX < 0 && stopSending == 0)
             {
-                LATAbits.LATA4 = 0;     //Reverse
+                LATAbits.LATA4 = 1;     //Reverse
                 pixelsX *= -1;        //We only want positive magnitudes
             }
             
-            if(pixelsX < 75 && zeroVal != 1 && stopSending == 0)
+            if(pixelsX < 200 && zeroVal != 1 && stopSending == 0)
             {
                 PHASE3 = 1000;
                 PDC3 = 0;
             }
             else if(zeroVal != 1 && stopSending == 0) 
             {
-                PHASE3 = 6000 - (pixelsX*7);
-                PDC3 = PHASE2/2;
+                PHASE3 = 10000 - (pixelsX*10);
+                PDC3 = PHASE3/2;
                 delay(500);
             }          
             samples = 0;
