@@ -15,7 +15,7 @@
 volatile extern char rxval[100];
 void leftThread( void *pvParameters )
 {
-    int pixelsY = 0, i = 0;
+    int pixelsY = 0, i = 0, j = 0;
     int zeroVal = 0;
     int samples = 0;
     int stopSending = 0;
@@ -27,6 +27,68 @@ void leftThread( void *pvParameters )
     //
     while(1)
     {
+        if(samples == SAMPLE_RATE)
+        {
+            for(i = 0; i < 95; i++)
+            {
+                if(rxval[i] == '$')
+                {
+                    stopSending = 1;
+                    break;
+                }
+                else if(rxval[i] == 'l')
+                {
+                    pixelsY = charToInt(rxval[i+1], rxval[i+2], rxval[i+3], rxval[i+4]);
+                    stopSending = 0;
+                    break;
+                }
+
+            }
+            if(pixelsY > 0 && stopSending == 0)
+            {
+                LATAbits.LATA1 = 0;     //Forward
+            }
+            else if(pixelsY < 0 && stopSending == 0)
+            {
+                LATAbits.LATA1 = 1;     //Reverse
+                pixelsY *= -1;        //We only want positive magnitudes
+            }
+            /*
+            if(pixelsY == 0)
+            {
+                for(j = PHASE2Prev; j < 10150; j += 100)
+                {
+                    if(j > 10000)
+                    {
+                        PHASE2 = 1000;
+                        PDC2 = 0;
+                        PHASE2Prev = 10001;
+                        break;
+                    }
+                    else
+                    {
+                        PHASE2 = j;
+                        PDC2 = PHASE2/2;
+                        delay(500);
+                    }
+                }
+            }
+             * */
+            if(pixelsY < 150 || stopSending == 1)
+            {
+                PHASE2 = 1000;
+                PDC2 = 0;
+            }
+            else if(pixelsY >= 150 && stopSending == 0) 
+            {
+                PHASE2 = 10000 - (pixelsY*16);
+                PDC2 = PHASE2/2;
+                delay(500);
+            }  
+            samples = 0;
+        }
+        samples++;
+        /*
         if(samples == SAMPLE_RATE)
         {
             zeroVal= 0;
@@ -72,5 +134,6 @@ void leftThread( void *pvParameters )
             samples = 0;
         }
         samples++;
+        */
     }    
 }
