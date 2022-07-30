@@ -1,6 +1,6 @@
 /*
- * File:   boom_task.c
- * Author: Erik
+ * File:   leftThread.c
+ * Author: Erik Sarkinen
  *
  * Created on April 29, 2022, 4:43 PM
  */
@@ -12,128 +12,58 @@
 #include "main.h"
 #include <stdio.h>
 #include <stdlib.h>
-volatile extern char rxval[100];
+volatile extern char rxval[100];    //The UART receive array which holds the data sent 
+                                    //via radio from the top circuit board
 void leftThread( void *pvParameters )
 {
-    int pixelsY = 0, i = 0, j = 0;
-    int zeroVal = 0;
+    int pixelsY = 0;
+    int i = 0;
     int samples = 0;
     int stopSending = 0;
- //   PHASE2 = 2000;
-  //  PDC2 = PHASE2/2;
-    //When leftTrack = 300 or -300, max speed, PHASEx = 1,000
-    //When -75 < leftTrack < 75 is around 0, PHASEx = 0;
-    //When motor first turns on, PHASEx = 6,000
-    //
     while(1)
     {
-        if(samples == SAMPLE_RATE)
+        if(samples == SAMPLE_RATE)  //We're only going to update the motors every SAMPLE_RATE loops
         {
             for(i = 0; i < 95; i++)
             {
-                if(rxval[i] == '$')
+                if(rxval[i] == '$')     //The tablet sends a '$' when the thumb is lifted
                 {
                     stopSending = 1;
                     break;
                 }
                 else if(rxval[i] == 'l')
                 {
+                    //This means the next character is a +/- followed by three characters
+                    //which are passed to charToInt which returns an integer value
+                    //pixelsY holds the pixels in the y-direction from the left track slider
                     pixelsY = charToInt(rxval[i+1], rxval[i+2], rxval[i+3], rxval[i+4]);
                     stopSending = 0;
                     break;
                 }
 
             }
-            if(pixelsY > 0 && stopSending == 0)
+            if(pixelsY > 0 && stopSending == 0)     //Thumb press is in the positive direction
             {
                 LATAbits.LATA1 = 0;     //Forward
             }
-            else if(pixelsY < 0 && stopSending == 0)
+            else if(pixelsY < 0 && stopSending == 0)    //Thumb press is in the negative direction
             {
                 LATAbits.LATA1 = 1;     //Reverse
                 pixelsY *= -1;        //We only want positive magnitudes
             }
-            /*
-            if(pixelsY == 0)
+            if(pixelsY < 150 || stopSending == 1)       //Thumb is near the origin or thumb is lifted
             {
-                for(j = PHASE2Prev; j < 10150; j += 100)
-                {
-                    if(j > 10000)
-                    {
-                        PHASE2 = 1000;
-                        PDC2 = 0;
-                        PHASE2Prev = 10001;
-                        break;
-                    }
-                    else
-                    {
-                        PHASE2 = j;
-                        PDC2 = PHASE2/2;
-                        delay(500);
-                    }
-                }
+                PHASE2 = 1000;      
+                PDC2 = 0;           //Turn the motor off
             }
-             * */
-            if(pixelsY < 150 || stopSending == 1)
+            else if(pixelsY >= 150 && stopSending == 0)     //Thumb is outside the circle
             {
-                PHASE2 = 1000;
-                PDC2 = 0;
-            }
-            else if(pixelsY >= 150 && stopSending == 0) 
-            {
-                PHASE2 = 10000 - (pixelsY*16);
-                PDC2 = PHASE2/2;
-                delay(500);
+                PHASE2 = 10000 - (pixelsY*16);      //Set the PWM period
+                PDC2 = PHASE2/2;                    //Duty cycle is arbitrary
+                delay(500);     
             }  
             samples = 0;
         }
         samples++;
-        /*
-        if(samples == SAMPLE_RATE)
-        {
-            zeroVal= 0;
-            for(i = 0; i < 95; i++)
-            {
-                if(rxval[i] == 'l')
-                {
-                    pixelsY = charToInt(rxval[i+1], rxval[i+2], rxval[i+3], rxval[i+4]);
-                    if(pixelsY == 0)
-                    {
-                        zeroVal = 1;
-                    }
-                    stopSending = 0;
-                    break;
-                }
-                if(rxval[i] == '$')
-                {
-                    stopSending = 1;
-                    break;
-                }
-            }
-            if(pixelsY > 0 && stopSending == 0)
-            {
-                LATAbits.LATA1 = 0;     //Forward
-            }
-            else if(pixelsY < 0 && stopSending == 0)
-            {
-                LATAbits.LATA1 = 1;     //Reverse
-                pixelsY *= -1;        //We only want positive magnitudes
-            }
-            
-            if(pixelsY < 75 && zeroVal != 1 && stopSending == 0)
-            {
-                PHASE2 = 1000;
-                PDC2 = 0;
-            }
-            else if(zeroVal != 1 && stopSending == 0) 
-            {
-                PHASE2 = 6000 - (pixelsY*16);
-                PDC2 = PHASE2/2;
-                delay(500);
-            }          
-            samples = 0;
-        }
-        samples++;
-        */
     }    
 }
