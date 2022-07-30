@@ -1,9 +1,10 @@
 /*
  * File:   main.c
- * Author: Erik
+ * Author: Erik Sarkinen
  *
  * Created on May 5, 2022, 1:46 PM
  */
+
 // 'C' source line config statements
 
 // FICD
@@ -49,12 +50,14 @@
 #include "FreeRTOSConfig.h"
 #include "main.h"
 
-volatile char rxval[100];
+volatile char rxval[100];    //The UART receive array which holds the data sent 
+                             //via radio from the top circuit board
 int x = 0;
+//Uart 1 is the radio
 void __attribute__((__interrupt__, auto_psv)) _U1RXInterrupt(void)             
 {
-    IFS0bits.U1RXIF = 0;
-    rxval[x] = U1RXREG;
+    IFS0bits.U1RXIF = 0;        //Clear the interrupt flag
+    rxval[x] = U1RXREG;         //Read the receive register into the receive array
     x++;
     if(x == 100)
     {  
@@ -71,15 +74,17 @@ void main(void) {
     int i = 0;
     for(i = 0; i < 100; i++)
     {
-        rxval[i] = 0;
+        rxval[i] = 0;       //Initialize the receive array to 0
     }
     init();
 
-	/* Create the test tasks defined within this file. */
+	//Left track stepper motor thread
 	xTaskCreate( leftThread, "LeftTrack", 512, NULL, 1, NULL );
+    //Right track stepper motor thread
     xTaskCreate( rightThread, "RightTrack", 512, NULL, 1, NULL );
+    //Spin stepper motor thread
     xTaskCreate( spinThread, "Spin", 512, NULL, 1, NULL );
-	/* Finally start the scheduler. */
+	//Start the scheduler.
 	vTaskStartScheduler();
 	/* Will only reach here if there is insufficient heap available to start
 	the scheduler. */

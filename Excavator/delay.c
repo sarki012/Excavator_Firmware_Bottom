@@ -1,6 +1,6 @@
 /*
  * File:   delay.c
- * Author: Erik
+ * Author: Erik Sarkinen
  *
  * Created on July 11th, 2022, 11:48 PM
  */

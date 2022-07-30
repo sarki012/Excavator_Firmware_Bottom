@@ -1,5 +1,5 @@
 /*
- * File:   servo_init.c
+ * File:   init.c
  * Author: Erik Sarkinen
  *
  * Created on February 12, 2022, 8:26 AM
@@ -183,6 +183,7 @@ void init(void)
  //   TRGCON1bits.TRGDIV = 7;     //Trigger output for every 8th trigger event
  //   TRGCON2bits.TRGDIV = 7;     //Trigger output for every 8th trigger event
     PTCONbits.PTEN = 1;         //PWM Module is enabled
+    //Initialize all three motors to zero duty cycle
     PHASE1 = 1000;
     PDC1 = 0;
     PHASE2 = 1000;
